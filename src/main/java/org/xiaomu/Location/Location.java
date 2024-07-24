@@ -26,7 +26,7 @@ public class Location extends JavaPlugin {
 
         getLogger().info("插件加载完毕! 作者 " + anthor + " | 版本 " + version);
 
-        if (Bukkit.getOnlinePlayers().size() > 0) {
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
             getLogger().info("检测到插件重载, 重新异步获取在线玩家定位.");
             LocationManager.LocateAll();
         }

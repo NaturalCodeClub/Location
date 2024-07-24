@@ -3,6 +3,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.xiaomu.Location.utils.getRequest;
 import java.util.HashMap;
+import java.util.Locale;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -20,9 +21,10 @@ public class LocationManager {
     }
 
     public static void Locate(Player player) {
-        Location.getInstance().getServer().getScheduler().runTaskAsynchronously(
+
+        Location.getInstance().getServer().getGlobalRegionScheduler().run(
                 Location.getInstance(),
-                () -> {
+                scheduledTask -> {
                     String playerName = player.getName();
                     String playerIP = player.getAddress().getHostString();
                     String stringData;
