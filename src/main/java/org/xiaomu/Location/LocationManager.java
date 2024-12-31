@@ -34,7 +34,7 @@ public class LocationManager {
                         playerIP = "";
                     }
 
-                    String stringResult = getRequest.sendGet("https://api.usuuu.com/ip/" + playerIP);
+                    String stringResult = getRequest.sendGet("https://ip.taobao.com/outGetIpInfo?ip=" + playerIP + "&accessKey=alibaba-inc");
 
                     if (!stringResult.equals("Error")) {
                         JSONObject objectJson = JSONObject.parseObject(stringResult);
