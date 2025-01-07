@@ -1,15 +1,15 @@
 package org.xiaomu.Location.utils;
 
-import org.json.simple.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 
 public class ApiData {
 
     public ApiData(JSONObject dataJson){
         //TODO finish it
-        String country = dataJson.get("country").toString();
-        String city = dataJson.get("city").toString();
-        String province = dataJson.get("province").toString();
-        String isp = dataJson.get("isp").toString();
+        String country = dataJson.getString("country");
+        String city = dataJson.getString("city");
+        String province = dataJson.getString("province");
+        String isp = dataJson.getString("isp");
     }
 
 }
