@@ -1,8 +1,8 @@
 package org.xiaomu.Location;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class papiHook extends PlaceholderExpansion {

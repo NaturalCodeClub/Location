@@ -1,11 +1,11 @@
 package org.xiaomu.Location;
+
+import com.alibaba.fastjson.JSONObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.xiaomu.Location.utils.getRequest;
-import java.util.HashMap;
-import java.util.Locale;
 
-import com.alibaba.fastjson.JSONObject;
+import java.util.HashMap;
 
 public class LocationManager {
     private static final HashMap<String, Boolean> locateState = new HashMap<String, Boolean>();
