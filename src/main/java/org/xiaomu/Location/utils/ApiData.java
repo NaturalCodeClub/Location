@@ -4,12 +4,33 @@ import com.alibaba.fastjson.JSONObject;
 
 public class ApiData {
 
-    public ApiData(JSONObject dataJson){
-        //TODO finish it
-        String country = dataJson.getString("country");
-        String city = dataJson.getString("city");
-        String province = dataJson.getString("province");
-        String isp = dataJson.getString("isp");
+    String country;
+    String province;
+    String city;
+    String isp;
+
+    public ApiData(JSONObject dataJson) {
+        country = dataJson.getString("country");
+        city = dataJson.getString("city");
+        province = dataJson.getString("province");
+        isp = dataJson.getString("isp");
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getCity() {
+        return city;
+
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public String getIsp() {
+        return isp;
     }
 
 }

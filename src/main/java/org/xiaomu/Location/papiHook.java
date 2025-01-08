@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 public class papiHook extends PlaceholderExpansion {
     @Override
     public String getAuthor() {
-        return Location.anthor;
+        return Location.author;
     }
 
     @Override

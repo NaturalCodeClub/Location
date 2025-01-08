@@ -4,13 +4,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Location extends JavaPlugin {
     private static Location instance;
-    public static final String anthor = "xiaomu18";
+    public static final String author = "xiaomu18";
     public static final String version = "1.0.4";
 
     @Override
     public void onEnable() {
         instance = this;
         getLogger().info("插件加载中...");
+
+        //Config Init and Load
+        ConfigManager.initConfig(getConfig());
+        ConfigManager.loadConfig(getConfig());
+        getLogger().info("Config Loaded!");
 
         if (Bukkit.getPluginCommand("Location") != null) {
             Bukkit.getPluginCommand("Location").setExecutor(new Commander());
@@ -24,7 +29,7 @@ public class Location extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new EventManager(),this);
 
-        getLogger().info("插件加载完毕! 作者 " + anthor + " | 版本 " + version);
+        getLogger().info("插件加载完毕! 作者 " + author + " | 版本 " + version);
 
         if (!Bukkit.getOnlinePlayers().isEmpty()) {
             getLogger().info("检测到插件重载, 重新异步获取在线玩家定位.");

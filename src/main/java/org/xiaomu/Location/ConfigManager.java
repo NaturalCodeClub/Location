@@ -2,6 +2,7 @@ package org.xiaomu.Location;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,6 +15,10 @@ import java.util.logging.Level;
 public class ConfigManager {
     public static File configFile;
     public static FileConfiguration config;
+
+    public static File langFile;
+    public static FileConfiguration lang;
+    //TODO finish it
 
     public static void loadConfig(FileConfiguration conf) {
         config = conf;
@@ -29,6 +34,11 @@ public class ConfigManager {
 
     public static void reloadConfig(CommandSender sender) {
         config = YamlConfiguration.loadConfiguration(configFile);
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new papiHook().register();
+        } else {
+            Location.getInstance().getLogger().warning("未找到 PlaceholderAPI 插件, 无法注册变量.");
+        }
         sender.sendMessage(Component.text("Reload successfully!", NamedTextColor.GREEN));
     }
 

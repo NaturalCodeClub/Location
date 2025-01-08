@@ -3,22 +3,30 @@ package org.xiaomu.Location;
 import com.alibaba.fastjson.JSONObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.xiaomu.Location.utils.ApiData;
 import org.xiaomu.Location.utils.getRequest;
 
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LocationManager {
     private static final HashMap<String, Boolean> locateState = new HashMap<String, Boolean>();
     private static final HashMap<String, JSONObject> Locations = new HashMap<String, JSONObject>();
+    private static final ConcurrentHashMap<String, ApiData> newLocations = new ConcurrentHashMap<>();
+    //TODO finish it
+    private static final ConcurrentHashMap<String, ApiData> cacheLocation = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, Long> cacheTimeStamp = new ConcurrentHashMap<>();
 
-    public static boolean IsExistence(String playerName, String key) {
-        if (locateState.containsKey(playerName)) {
-            if (locateState.get(playerName)) {
-                return !Locations.get(playerName).getString(key).equals("0");
-            }
-        }
-        return false;
-    }
+//    // safely delete it --finished
+//    public static boolean IsExistence(String playerName, String key) {
+//        if (locateState.containsKey(playerName)) {
+//            if (locateState.get(playerName)) {
+//                return !Locations.get(playerName).getString(key).equals("0");
+//            }
+//        }
+//        return false;
+//    }
 
     public static void Locate(Player player) {
 
@@ -48,6 +56,7 @@ public class LocationManager {
 
                             Location.getInstance().getLogger().info("对玩家 " + playerName + "(IP: " + dataJson.getString("ip") + ") 的定位成功.");
                             Locations.put(playerName, dataJson);
+                            newLocations.put(playerName, new ApiData(dataJson));
                             locateState.put(playerName, true);
                         } else {
                             Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
@@ -64,53 +73,85 @@ public class LocationManager {
     }
 
     public static String getIP(Player player) {
-        if (IsExistence(player.getName(), "ip")) {
-            return Locations.get(player.getName()).getString("ip");
-        } else {
-            return "未知";
-        }
+//        if (IsExistence(player.getName(), "ip")) {
+//            return Locations.get(player.getName()).getString("ip");
+        return Objects.requireNonNull(player.getAddress()).getHostString();
+//        } else {
+//            return "未知";
+//        }
     }
 
     public static String getCountry(Player player) {
-        if (IsExistence(player.getName(), "country")) {
-            return Locations.get(player.getName()).getString("country");
-        } else {
+//        if (IsExistence(player.getName(), "country")) {
+//            return Locations.get(player.getName()).getString("country");
+//        } else {
+//            return "未知";
+//        }
+
+        if (newLocations.get(player.getName()).getCountry().equals("局域网") || newLocations.get(player.getName()).getCountry().equals("本地局域网") || newLocations.get(player.getName()).getCountry().equals("保留地址")) {
+            return "本地";
+        }
+        if(!locateState.get(player.getName())) {
             return "未知";
         }
+        return newLocations.get(player.getName()).getCountry();
+
     }
+
     public static String getProvince(Player player) {
-        if (IsExistence(player.getName(), "province")) {
-            return Locations.get(player.getName()).getString("province");
-        } else {
+//        if (IsExistence(player.getName(), "province")) {
+//            return Locations.get(player.getName()).getString("province");
+//        } else {
+//            return "未知";
+//        }
+
+        if (newLocations.get(player.getName()).getProvince().isEmpty()) {
             return "未知";
         }
+        if(!locateState.get(player.getName())) {
+            return "未知";
+        }
+        return newLocations.get(player.getName()).getProvince();
     }
+
     public static String getCity(Player player) {
-        if (IsExistence(player.getName(), "city")) {
-            return Locations.get(player.getName()).getString("city");
-        } else {
+        if (newLocations.get(player.getName()).getCity().isEmpty()) {
             return "未知";
         }
+        if(!locateState.get(player.getName())) {
+            return "未知";
+        }
+        return newLocations.get(player.getName()).getCity();
     }
+
     public static String getIsp(Player player) {
-        if (IsExistence(player.getName(), "isp")) {
-            return Locations.get(player.getName()).getString("isp");
-        } else {
+//        if (IsExistence(player.getName(), "isp")) {
+//            return Locations.get(player.getName()).getString("isp");
+//        } else {
+//            return "未知";
+//        }
+        if (newLocations.get(player.getName()).getIsp().isEmpty()) {
             return "未知";
         }
+        if(!locateState.get(player.getName())) {
+            return "未知";
+        }
+        return newLocations.get(player.getName()).getIsp();
     }
 
     public static void removePlayer(String playerName) {
         Locations.remove(playerName);
+        newLocations.remove(playerName);
         locateState.remove(playerName);
     }
 
-    public static void removeAll(){
+    public static void removeAll() {
         Locations.clear();
+        newLocations.clear();
         locateState.clear();
     }
 
-    public static void LocateAll(){
+    public static void LocateAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             LocationManager.Locate(player);
         }
