@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class ConfigManager {
-    public static File configFile;
+    public static File configFile = new File(Location.getInstance().getDataFolder(), "config.yml");
     public static FileConfiguration config;
 
     public static File langFile;
