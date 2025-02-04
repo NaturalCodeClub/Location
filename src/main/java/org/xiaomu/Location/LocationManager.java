@@ -11,12 +11,14 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LocationManager {
-    private static final HashMap<String, Boolean> locateState = new HashMap<String, Boolean>();
-    private static final HashMap<String, JSONObject> Locations = new HashMap<String, JSONObject>();
+    private static final HashMap<String, Boolean> locateState = new HashMap<>();
+    private static final HashMap<String, JSONObject> Locations = new HashMap<>();
     private static final ConcurrentHashMap<String, ApiData> newLocations = new ConcurrentHashMap<>();
     //TODO finish it
     private static final ConcurrentHashMap<String, ApiData> cacheLocation = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<String, Long> cacheTimeStamp = new ConcurrentHashMap<>();
+
+    public static String serverIP;
 
 //    // safely delete it --finished
 //    public static boolean IsExistence(String playerName, String key) {
@@ -58,6 +60,8 @@ public class LocationManager {
                             Locations.put(playerName, dataJson);
                             newLocations.put(playerName, new ApiData(dataJson));
                             locateState.put(playerName, true);
+                        } else if (code.equals("202")) {
+                            //TODO finish it
                         } else {
                             Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
                             Location.getInstance().getLogger().warning("错误信息: 返回码 " + code + " | " + msg);
@@ -91,7 +95,7 @@ public class LocationManager {
         if (newLocations.get(player.getName()).getCountry().equals("局域网") || newLocations.get(player.getName()).getCountry().equals("本地局域网") || newLocations.get(player.getName()).getCountry().equals("保留地址")) {
             return "本地";
         }
-        if(!locateState.get(player.getName())) {
+        if (!locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getCountry();
@@ -108,7 +112,7 @@ public class LocationManager {
         if (newLocations.get(player.getName()).getProvince().isEmpty()) {
             return "未知";
         }
-        if(!locateState.get(player.getName())) {
+        if (!locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getProvince();
@@ -118,7 +122,7 @@ public class LocationManager {
         if (newLocations.get(player.getName()).getCity().isEmpty()) {
             return "未知";
         }
-        if(!locateState.get(player.getName())) {
+        if (!locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getCity();
@@ -133,7 +137,7 @@ public class LocationManager {
         if (newLocations.get(player.getName()).getIsp().isEmpty()) {
             return "未知";
         }
-        if(!locateState.get(player.getName())) {
+        if (!locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getIsp();

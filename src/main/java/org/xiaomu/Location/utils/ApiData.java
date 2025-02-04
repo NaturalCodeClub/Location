@@ -22,7 +22,6 @@ public class ApiData {
 
     public String getCity() {
         return city;
-
     }
 
     public String getProvince() {

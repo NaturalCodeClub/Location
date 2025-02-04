@@ -66,7 +66,7 @@ public class ConfigManager {
         }
         if (conf.get("qps") == null) {
             conf.set("qps", 15);
-            conf.setComments("qps", List.of("配置插件查询IP信息的Api访问频次，单位为 次/秒 如果您不更改本项目代码中所访问的Api，请不要使其低于 15 "));
+            conf.setComments("qps", List.of("配置插件查询IP信息的Api访问频次，单位为 次/秒 如果您不更改本项目代码中所访问的Api，请不要使其高于 15 "));
             //TODO still thinking how to finish
         }
         try {
