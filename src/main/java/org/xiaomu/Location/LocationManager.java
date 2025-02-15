@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LocationManager {
     private static final HashMap<String, Boolean> locateState = new HashMap<>();
-    private static final HashMap<String, JSONObject> Locations = new HashMap<>();
+    //    private static final HashMap<String, JSONObject> Locations = new HashMap<>();
     private static final ConcurrentHashMap<String, ApiData> newLocations = new ConcurrentHashMap<>();
     //TODO finish it
     private static final ConcurrentHashMap<String, ApiData> cacheLocation = new ConcurrentHashMap<>();
@@ -30,7 +30,7 @@ public class LocationManager {
 //        return false;
 //    }
 
-    public static void Locate(Player player) {
+    public static void Locate(Player player, boolean isRelocate) {
 
         Location.getInstance().getServer().getGlobalRegionScheduler().run(
                 Location.getInstance(),
@@ -57,7 +57,7 @@ public class LocationManager {
                             JSONObject dataJson = JSONObject.parseObject(stringData);
 
                             Location.getInstance().getLogger().info("对玩家 " + playerName + "(IP: " + dataJson.getString("ip") + ") 的定位成功.");
-                            Locations.put(playerName, dataJson);
+//                            Locations.put(playerName, dataJson);
                             newLocations.put(playerName, new ApiData(dataJson));
                             locateState.put(playerName, true);
                         } else if (code.equals("202")) {
@@ -144,20 +144,20 @@ public class LocationManager {
     }
 
     public static void removePlayer(String playerName) {
-        Locations.remove(playerName);
+//        Locations.remove(playerName);
         newLocations.remove(playerName);
         locateState.remove(playerName);
     }
 
     public static void removeAll() {
-        Locations.clear();
+//        Locations.clear();
         newLocations.clear();
         locateState.clear();
     }
 
     public static void LocateAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            LocationManager.Locate(player);
+            LocationManager.Locate(player, false);
         }
     }
 }
