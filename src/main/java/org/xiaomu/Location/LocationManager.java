@@ -17,6 +17,7 @@ public class LocationManager {
     //TODO finish it
     private static final ConcurrentHashMap<String, ApiData> cacheLocation = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<String, Long> cacheTimeStamp = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, Integer> retryMap = new ConcurrentHashMap<>();
 
     public static String serverIP;
 

@@ -18,10 +18,16 @@ public class ConfigManager {
 
     public static File langFile;
     public static FileConfiguration lang;
+
+    public static int CACHE_OUTDATED_RATE;
+    public static int CHECK_INTERVAL;
+    public static int QPS;
+
     //TODO finish it
 
     public static void loadConfig(FileConfiguration conf) {
         config = conf;
+        getConfigValue(config);
     }
 
     public static void saveConfig(FileConfiguration conf, File path) {
@@ -34,12 +40,19 @@ public class ConfigManager {
 
     public static void reloadConfig(CommandSender sender) {
         config = YamlConfiguration.loadConfiguration(configFile);
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new papiHook().register();
         } else {
             Location.getInstance().getLogger().warning("未找到 PlaceholderAPI 插件, 无法注册变量.");
         }
+        getConfigValue(config);
         sender.sendMessage(Component.text("Reload successfully!", NamedTextColor.GREEN));
+    }
+
+    public static void getConfigValue(FileConfiguration conf) {
+        CACHE_OUTDATED_RATE = conf.getInt("cache-outdated-rate", 24);
+        CHECK_INTERVAL = conf.getInt("check-interval", 1);
+        QPS = conf.getInt("qps", 15);
     }
 
     public static void initConfig(FileConfiguration conf) {

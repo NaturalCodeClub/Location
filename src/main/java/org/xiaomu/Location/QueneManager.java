@@ -42,7 +42,7 @@ public class QueneManager {
         }
         tasksExecutedInWindow++;
     }
-    public void sumbit(Runnable task){
+    public void submit(Runnable task){
         taskQueue.offer(task);
     }
 
