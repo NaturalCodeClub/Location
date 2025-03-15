@@ -1,4 +1,4 @@
-package org.xiaomu.Location;
+package org.ncc.Location;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.xiaomu.Location.Location;
+import org.xiaomu.Location.papiHook;
 
 import java.io.File;
 import java.io.IOException;

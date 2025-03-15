@@ -1,4 +1,4 @@
-package org.xiaomu.Location.utils;
+package org.ncc.Location.Utils;
 
 import com.alibaba.fastjson.JSONObject;
 

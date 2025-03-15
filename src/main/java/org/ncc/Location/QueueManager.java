@@ -1,15 +1,16 @@
-package org.xiaomu.Location;
+package org.ncc.Location;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class QueneManager {
+public class QueueManager {
     //TODO finish it
     private final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
     private volatile long currentWindowStart = System.currentTimeMillis();
     private volatile int tasksExecutedInWindow = 0;
+    public static QueueManager queueManager = new QueueManager();
 
-    public QueneManager() {
+    public QueueManager() {
         new Thread(this::processTask).start();
     }
 
@@ -44,6 +45,12 @@ public class QueneManager {
     }
     public void submit(Runnable task){
         taskQueue.offer(task);
+    }
+    public Thread getThread(){
+        return Thread.currentThread();
+    }
+    public static QueueManager getQueueManager() {
+        return queueManager;
     }
 
 }

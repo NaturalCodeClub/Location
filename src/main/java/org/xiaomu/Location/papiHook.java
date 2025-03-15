@@ -31,18 +31,22 @@ public class papiHook extends PlaceholderExpansion {
         }
 
         if(params.equalsIgnoreCase("Country")){
+            if(LocationManager.isRequesting(onlinePlayer)) return "获取中";
             return LocationManager.getCountry(onlinePlayer);
         }
 
         if(params.equalsIgnoreCase("Province")) {
+            if(LocationManager.isRequesting(onlinePlayer)) return "获取中";
             return LocationManager.getProvince(onlinePlayer);
         }
 
         if(params.equalsIgnoreCase("City")) {
+            if(LocationManager.isRequesting(onlinePlayer)) return "获取中";
             return LocationManager.getCity(onlinePlayer);
         }
 
         if(params.equalsIgnoreCase("Isp")) {
+            if(LocationManager.isRequesting(onlinePlayer)) return "获取中";
             return LocationManager.getIsp(onlinePlayer);
         }
         return null; // Placeholder is unknown by the Expansion

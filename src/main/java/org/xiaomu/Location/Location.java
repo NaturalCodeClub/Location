@@ -1,11 +1,15 @@
 package org.xiaomu.Location;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.ncc.Location.ConfigManager;
+
+import static org.ncc.Location.QueueManager.queueManager;
 
 public class Location extends JavaPlugin {
     private static Location instance;
     public static final String author = "xiaomu18";
     public static final String version = "1.0.4";
+//    public static final QueueManager queueManager = new QueueManager();
 
     @Override
     public void onEnable() {
@@ -44,6 +48,9 @@ public class Location extends JavaPlugin {
     @Override
     public void onDisable() {
         LocationManager.removeAll();
+
+        //Queue Thread interrupt
+        queueManager.getThread().interrupt();
         getLogger().info("数据释放完毕！插件已卸载.");
     }
 }

@@ -3,10 +3,12 @@ package org.xiaomu.Location;
 import com.alibaba.fastjson.JSONObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.xiaomu.Location.utils.ApiData;
+import org.ncc.Location.QueueManager;
+import org.ncc.Location.Utils.ApiData;
 import org.xiaomu.Location.utils.getRequest;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,9 +19,8 @@ public class LocationManager {
     //TODO finish it
     private static final ConcurrentHashMap<String, ApiData> cacheLocation = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<String, Long> cacheTimeStamp = new ConcurrentHashMap<>();
-    public static final ConcurrentHashMap<String, Integer> retryMap = new ConcurrentHashMap<>();
-
-    public static String serverIP;
+    public static final ConcurrentHashMap<Player, Integer> retryMap = new ConcurrentHashMap<>();
+    public static final HashSet<Player> requestingPlayers = new HashSet<>();
 
 //    // safely delete it --finished
 //    public static boolean IsExistence(String playerName, String key) {
@@ -32,49 +33,92 @@ public class LocationManager {
 //    }
 
     public static void Locate(Player player, boolean isRelocate) {
+        if (!retryMap.containsKey(player)) retryMap.put(player, 0);
+        requestingPlayers.add(player);
 
-        Location.getInstance().getServer().getGlobalRegionScheduler().run(
-                Location.getInstance(),
-                scheduledTask -> {
-                    String playerName = player.getName();
-                    String playerIP = player.getAddress().getHostString();
-                    String stringData;
+        QueueManager.getQueueManager().submit(() -> {
+            String playerName = player.getName();
+            String playerIP = player.getAddress().getHostString();
+            String stringData;
 
-                    if (playerIP.equals("127.0.0.1")) {
-                        Location.getInstance().getLogger().warning("定位可能不适合内网映射，请确定您的服务端可获取玩家真实 IP.");
-                        playerIP = "";
-                    }
+//            if (playerIP.equals("127.0.0.1")) {
+//                Location.getInstance().getLogger().warning("定位可能不适合内网映射，请确定您的服务端可获取玩家真实 IP.");
+//                playerIP = "";
+//            }
 
-                    String stringResult = getRequest.sendGet("https://api.mir6.com/api/ip?ip=" + playerIP + "&type=json");
+            String stringResult = getRequest.sendGet("https://api.mir6.com/api/ip?ip=" + playerIP + "&type=json");
 
-                    if (!stringResult.equals("Error")) {
-                        JSONObject objectJson = JSONObject.parseObject(stringResult);
+            if (!stringResult.equals("Error")) {
+                JSONObject objectJson = JSONObject.parseObject(stringResult);
 
-                        String code = objectJson.getString("code");
-                        String msg = objectJson.getString("msg");
+                String code = objectJson.getString("code");
+                String msg = objectJson.getString("msg");
 
-                        if (code.equals("200") && msg.equals("success")) {
-                            stringData = objectJson.getString("data");
-                            JSONObject dataJson = JSONObject.parseObject(stringData);
+                if (code.equals("200") && msg.equals("success")) {
+                    stringData = objectJson.getString("data");
+                    JSONObject dataJson = JSONObject.parseObject(stringData);
 
-                            Location.getInstance().getLogger().info("对玩家 " + playerName + "(IP: " + dataJson.getString("ip") + ") 的定位成功.");
+                    Location.getInstance().getLogger().info("对玩家 " + playerName + "(IP: " + dataJson.getString("ip") + ") 的定位成功.");
 //                            Locations.put(playerName, dataJson);
-                            newLocations.put(playerName, new ApiData(dataJson));
-                            locateState.put(playerName, true);
-                        } else if (code.equals("202")) {
-                            //TODO finish it
-                        } else {
-                            Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
-                            Location.getInstance().getLogger().warning("错误信息: 返回码 " + code + " | " + msg);
-                            locateState.put(playerName, false);
-                        }
-                    } else {
-                        Location.getInstance().getLogger().warning("对 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
-                        Location.getInstance().getLogger().warning("错误信息: 可能是因为服务器网络状态不佳或未联网.");
-                        locateState.put(playerName, false);
-                    }
+                    newLocations.put(playerName, new ApiData(dataJson));
+                    locateState.put(playerName, true);
+                    requestingPlayers.remove(player);
+                } else if (code.equals("202")) {
+                    //TODO finish it
+                } else {
+                    Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
+                    Location.getInstance().getLogger().warning("错误信息: 返回码 " + code + " | " + msg);
+                    locateState.put(playerName, false);
                 }
-        );
+            } else {
+                Location.getInstance().getLogger().warning("对 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
+                Location.getInstance().getLogger().warning("错误信息: 可能是因为服务器网络状态不佳或未联网.");
+                locateState.put(playerName, false);
+            }
+        });
+
+//        Location.getInstance().getServer().getGlobalRegionScheduler().run(
+//                Location.getInstance(),
+//                scheduledTask -> {
+//                    String playerName = player.getName();
+//                    String playerIP = player.getAddress().getHostString();
+//                    String stringData;
+//
+//                    if (playerIP.equals("127.0.0.1")) {
+//                        Location.getInstance().getLogger().warning("定位可能不适合内网映射，请确定您的服务端可获取玩家真实 IP.");
+//                        playerIP = "";
+//                    }
+//
+//                    String stringResult = getRequest.sendGet("https://api.mir6.com/api/ip?ip=" + playerIP + "&type=json");
+//
+//                    if (!stringResult.equals("Error")) {
+//                        JSONObject objectJson = JSONObject.parseObject(stringResult);
+//
+//                        String code = objectJson.getString("code");
+//                        String msg = objectJson.getString("msg");
+//
+//                        if (code.equals("200") && msg.equals("success")) {
+//                            stringData = objectJson.getString("data");
+//                            JSONObject dataJson = JSONObject.parseObject(stringData);
+//
+//                            Location.getInstance().getLogger().info("对玩家 " + playerName + "(IP: " + dataJson.getString("ip") + ") 的定位成功.");
+////                            Locations.put(playerName, dataJson);
+//                            newLocations.put(playerName, new ApiData(dataJson));
+//                            locateState.put(playerName, true);
+//                        } else if (code.equals("202")) {
+//                            //TODO finish it
+//                        } else {
+//                            Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
+//                            Location.getInstance().getLogger().warning("错误信息: 返回码 " + code + " | " + msg);
+//                            locateState.put(playerName, false);
+//                        }
+//                    } else {
+//                        Location.getInstance().getLogger().warning("对 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
+//                        Location.getInstance().getLogger().warning("错误信息: 可能是因为服务器网络状态不佳或未联网.");
+//                        locateState.put(playerName, false);
+//                    }
+//                }
+//        );
     }
 
     public static String getIP(Player player) {
@@ -142,6 +186,10 @@ public class LocationManager {
             return "未知";
         }
         return newLocations.get(player.getName()).getIsp();
+    }
+
+    public static boolean isRequesting(Player player) {
+        return requestingPlayers.contains(player);
     }
 
     public static void removePlayer(String playerName) {
