@@ -32,8 +32,16 @@ public class LocationManager {
 //        return false;
 //    }
 
-    public static void Locate(Player player, boolean isRelocate) {
+    public static void Locate(Player player) {
         if (!retryMap.containsKey(player)) retryMap.put(player, 0);
+        else{
+            //Retry need to sleep for no longer fail
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         requestingPlayers.add(player);
 
         QueueManager.getQueueManager().submit(() -> {
@@ -48,7 +56,7 @@ public class LocationManager {
 
             String stringResult = getRequest.sendGet("https://api.mir6.com/api/ip?ip=" + playerIP + "&type=json");
 
-            if (!stringResult.equals("Error")) {
+            if (!stringResult.equals("Error") && !stringResult.equals("定位失败")) {
                 JSONObject objectJson = JSONObject.parseObject(stringResult);
 
                 String code = objectJson.getString("code");
@@ -63,17 +71,28 @@ public class LocationManager {
                     newLocations.put(playerName, new ApiData(dataJson));
                     locateState.put(playerName, true);
                     requestingPlayers.remove(player);
+                    retryMap.remove(player);
                 } else if (code.equals("202")) {
                     //TODO finish it
+                    Location.getInstance().getLogger().warning("QPS设置过高，无法定位，玩家 " + playerIP + " 的定位将于下一周期进行.");
+//                    int i = retryMap.get(player);
+//                    i++;
+//                    retryMap.put(player, i);
+                    retryMap.merge(player, 1, Integer::sum);
+                    Locate(player);
                 } else {
                     Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
                     Location.getInstance().getLogger().warning("错误信息: 返回码 " + code + " | " + msg);
                     locateState.put(playerName, false);
+                    requestingPlayers.remove(player);
+                    retryMap.remove(player);
                 }
             } else {
                 Location.getInstance().getLogger().warning("对 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
                 Location.getInstance().getLogger().warning("错误信息: 可能是因为服务器网络状态不佳或未联网.");
                 locateState.put(playerName, false);
+                requestingPlayers.remove(player);
+                retryMap.remove(player);
             }
         });
 
@@ -206,7 +225,7 @@ public class LocationManager {
 
     public static void LocateAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            LocationManager.Locate(player, false);
+            LocationManager.Locate(player);
         }
     }
 }

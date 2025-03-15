@@ -9,7 +9,7 @@ public class EventManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Location.getInstance().getLogger().info("玩家 " + e.getPlayer().getName() + " 加入服务器，异步定位其地理位置.");
-        LocationManager.Locate(e.getPlayer(),false);
+        LocationManager.Locate(e.getPlayer());
     }
 
     @EventHandler

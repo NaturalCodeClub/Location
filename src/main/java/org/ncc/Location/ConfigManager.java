@@ -24,6 +24,7 @@ public class ConfigManager {
     public static int CACHE_OUTDATED_RATE;
     public static int CHECK_INTERVAL;
     public static int QPS;
+    public static int RETRY_COUNT_DROP;
 
     //TODO finish it
 
@@ -55,6 +56,7 @@ public class ConfigManager {
         CACHE_OUTDATED_RATE = conf.getInt("cache-outdated-rate", 24);
         CHECK_INTERVAL = conf.getInt("check-interval", 1);
         QPS = conf.getInt("qps", 15);
+        RETRY_COUNT_DROP = conf.getInt("retry-count-drop", 5);
     }
 
     public static void initConfig(FileConfiguration conf) {
@@ -72,18 +74,22 @@ public class ConfigManager {
         }
         if (conf.get("cache-outdated-rate") == null) {
             conf.set("cache-outdated-rate", 24);
-            conf.setComments("cache-outdated-rate", List.of("配置缓存在内存中各项IP位置信息的清除时间，单位为小时，需要注意的是缓存并不持久化保存，意味着重启服务器缓存会丢失"));
+            conf.setComments("cache-outdated-rate", List.of("配置缓存在内存中各项IP位置信息的清除时间，单位为小时，需要注意的是缓存并不持久化保存，意味着重启服务器缓存会丢失."));
 
         }
         if (conf.get("check-interval") == null) {
             conf.set("check-interval", 1);
-            conf.setComments("check-interval", List.of("配置插件检测缓存的周期，单位为小时"));
+            conf.setComments("check-interval", List.of("配置插件检测缓存的周期，单位为小时."));
         }
 
         if (conf.get("qps") == null) {
             conf.set("qps", 15);
-            conf.setComments("qps", List.of("配置插件查询IP信息的Api访问频次，单位为 次/秒 如果您不更改本项目代码中所访问的Api，请不要使其高于 15 "));
+            conf.setComments("qps", List.of("配置插件查询IP信息的Api访问频次，单位为 次/秒 如果您不更改本项目代码中所访问的Api，请不要使其高于 15 ."));
+        }
 
+        if(conf.get("retry-count-drop") == null) {
+            conf.set("retry-count-drop", 5);
+            conf.setComments("retry-count-drop",List.of("配置当获取地址时API返回代码 202 时插件重试获取地址的次数，超出此次数，玩家的位置将直接显示为 “未知” ."));
         }
         try {
             conf.save(configFile);
