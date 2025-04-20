@@ -30,12 +30,12 @@ public class QueueManager {
         long now = System.currentTimeMillis();
         long elapsed = now - currentWindowStart;
 
-        if(elapsed > 1000) {
+        if (elapsed > 1000) {
             currentWindowStart = now;
             tasksExecutedInWindow = 0;
         }
-        if (tasksExecutedInWindow >= 15) {
-            if(1000 - elapsed > 0){
+        if (tasksExecutedInWindow >= ConfigManager.QPS) {
+            if (1000 - elapsed > 0) {
                 Thread.sleep(1000 - elapsed);
             }
             currentWindowStart = System.currentTimeMillis();
@@ -43,14 +43,18 @@ public class QueueManager {
         }
         tasksExecutedInWindow++;
     }
-    public void submit(Runnable task){
+
+    public void submit(Runnable task) {
         taskQueue.offer(task);
     }
-    public Thread getThread(){
+
+    public Thread getThread() {
         return Thread.currentThread();
     }
+
     public static QueueManager getQueueManager() {
         return queueManager;
     }
+
 
 }

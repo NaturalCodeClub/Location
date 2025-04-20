@@ -22,7 +22,7 @@ public class ConfigManager {
     public static FileConfiguration lang;
 
     public static int CACHE_OUTDATED_RATE;
-    public static int CHECK_INTERVAL;
+    public static int CHECK_INTERVAL_MINUTES;
     public static int QPS;
     public static int RETRY_COUNT_DROP;
 
@@ -54,7 +54,7 @@ public class ConfigManager {
 
     public static void getConfigValue(FileConfiguration conf) {
         CACHE_OUTDATED_RATE = conf.getInt("cache-outdated-rate", 24);
-        CHECK_INTERVAL = conf.getInt("check-interval", 1);
+        CHECK_INTERVAL_MINUTES = conf.getInt("check-interval-minute", 10);
         QPS = conf.getInt("qps", 15);
         RETRY_COUNT_DROP = conf.getInt("retry-count-drop", 5);
     }
@@ -77,9 +77,9 @@ public class ConfigManager {
             conf.setComments("cache-outdated-rate", List.of("配置缓存在内存中各项IP位置信息的清除时间，单位为小时，需要注意的是缓存并不持久化保存，意味着重启服务器缓存会丢失."));
 
         }
-        if (conf.get("check-interval") == null) {
-            conf.set("check-interval", 1);
-            conf.setComments("check-interval", List.of("配置插件检测缓存的周期，单位为小时."));
+        if (conf.get("check-interval-minute") == null) {
+            conf.set("check-interval-minute", 10);
+            conf.setComments("check-interval-minute", List.of("配置插件检测缓存的周期，单位为分钟."));
         }
 
         if (conf.get("qps") == null) {

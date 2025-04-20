@@ -3,6 +3,7 @@ package org.xiaomu.Location;
 import com.alibaba.fastjson.JSONObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.ncc.Location.ConfigManager;
 import org.ncc.Location.QueueManager;
 import org.ncc.Location.Utils.ApiData;
 import org.xiaomu.Location.utils.getRequest;
@@ -34,12 +35,11 @@ public class LocationManager {
 
     public static void Locate(Player player) {
         if (!retryMap.containsKey(player)) retryMap.put(player, 0);
-        else{
-            //Retry need to sleep for no longer fail
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        else {
+            if (retryMap.get(player) >= ConfigManager.RETRY_COUNT_DROP) {
+                Location.getInstance().getLogger().warning("定位重试次数超过了设置范围，已取消定位。");
+                retryMap.remove(player);
+                return;
             }
         }
         requestingPlayers.add(player);
@@ -78,8 +78,11 @@ public class LocationManager {
 //                    int i = retryMap.get(player);
 //                    i++;
 //                    retryMap.put(player, i);
+
                     retryMap.merge(player, 1, Integer::sum);
-                    Locate(player);
+                    Bukkit.getGlobalRegionScheduler().runDelayed(Location.getInstance(), scheduledTask -> {
+                        Locate(player);
+                    }, 20L);
                 } else {
                     Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
                     Location.getInstance().getLogger().warning("错误信息: 返回码 " + code + " | " + msg);
@@ -125,7 +128,7 @@ public class LocationManager {
 //                            newLocations.put(playerName, new ApiData(dataJson));
 //                            locateState.put(playerName, true);
 //                        } else if (code.equals("202")) {
-//                            //TODO finish it
+//
 //                        } else {
 //                            Location.getInstance().getLogger().warning("对玩家 " + playerName + "(IP: " + playerIP + ") 的定位失败.");
 //                            Location.getInstance().getLogger().warning("错误信息: 返回码 " + code + " | " + msg);
