@@ -3,6 +3,7 @@ package org.xiaomu.Location;
 import com.alibaba.fastjson.JSONObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.ncc.Location.CacheManager;
 import org.ncc.Location.ConfigManager;
 import org.ncc.Location.QueueManager;
 import org.ncc.Location.Utils.ApiData;
@@ -17,9 +18,6 @@ public class LocationManager {
     private static final HashMap<String, Boolean> locateState = new HashMap<>();
     //    private static final HashMap<String, JSONObject> Locations = new HashMap<>();
     private static final ConcurrentHashMap<String, ApiData> newLocations = new ConcurrentHashMap<>();
-    //TODO finish it
-    private static final ConcurrentHashMap<String, ApiData> cacheLocation = new ConcurrentHashMap<>();
-    public static final ConcurrentHashMap<String, Long> cacheTimeStamp = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, Integer> retryMap = new ConcurrentHashMap<>();
     public static final HashSet<Player> requestingPlayers = new HashSet<>();
 
@@ -53,6 +51,14 @@ public class LocationManager {
 //                Location.getInstance().getLogger().warning("定位可能不适合内网映射，请确定您的服务端可获取玩家真实 IP.");
 //                playerIP = "";
 //            }
+            if(CacheManager.requestIsCacheExist(playerIP)){
+                newLocations.put(playerName, CacheManager.getCacheApiData(playerIP));
+                locateState.put(playerName, true);
+                requestingPlayers.remove(player);
+                retryMap.remove(player);
+                Location.getInstance().getLogger().info("对IP " + playerIP + "命中缓存");
+                return;
+            }
 
             String stringResult = getRequest.sendGet("https://api.mir6.com/api/ip?ip=" + playerIP + "&type=json");
 
