@@ -51,4 +51,10 @@ public class papiHook extends PlaceholderExpansion {
         }
         return null; // Placeholder is unknown by the Expansion
     }
+
+    //Make it no longer not work when execute /papi reload
+    @Override
+    public boolean persist() {
+        return true;
+    }
 }
