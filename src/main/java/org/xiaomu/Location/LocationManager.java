@@ -216,6 +216,16 @@ public class LocationManager {
         return newLocations.get(player.getName()).getIsp();
     }
 
+    public static String getDistrict(Player player) {
+        if (newLocations.get(player.getName()).getDistrict().isEmpty()) {
+            return "未知";
+        }
+        if (!locateState.get(player.getName())) {
+            return "未知";
+        }
+        return newLocations.get(player.getName()).getDistrict();
+    }
+
     public static boolean isRequesting(Player player) {
         return requestingPlayers.contains(player);
     }

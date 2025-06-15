@@ -51,6 +51,7 @@ public class Location extends JavaPlugin {
 
         //Queue Thread interrupt
         queueManager.getThread().interrupt();
+        Bukkit.getGlobalRegionScheduler().cancelTasks(this);
         getLogger().info("数据释放完毕！插件已卸载.");
     }
 }

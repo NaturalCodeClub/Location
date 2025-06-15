@@ -2,22 +2,24 @@ package org.xiaomu.Location;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class Commander implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Commander implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args) {
-        if (args.length < 1) {
-            commandSender.sendMessage("[Location] 使用 /Location help 获取帮助.");
-            return true;
-        }
 
-        if (args[0].equalsIgnoreCase("help")) {
+        if (args.length < 1 || args[0].equalsIgnoreCase("help")) {
             commandSender.sendMessage("[Location] 帮助");
             commandSender.sendMessage("/Location player [玩家名称] 获取玩家的真实地理位置定位.");
             commandSender.sendMessage("/Location flush 异步刷新当前服务器上所有玩家的地理定位信息.");
+            commandSender.sendMessage("/Location reload 重载配置文件.");
             return true;
         }
 
@@ -31,7 +33,7 @@ public class Commander implements CommandExecutor {
             if (!(player == null)) {
                 commandSender.sendMessage(player.getName() + " >> IP: " + LocationManager.getIP(player) + " " + LocationManager.getCountry(player) + " " + LocationManager.getProvince(player) + " " + LocationManager.getCity(player) + " | " + LocationManager.getIsp(player));
             } else {
-                commandSender.sendMessage("[ Error ] 此玩家似乎不在线!");
+                commandSender.sendMessage("[Location] 此玩家似乎不在线!");
             }
             return true;
         }
@@ -45,5 +47,22 @@ public class Commander implements CommandExecutor {
 
         commandSender.sendMessage("[Location] 未知的命令.");
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        if (strings.length == 0) {
+            return List.of("help", "flush", "player");
+        }
+        if (strings.length == 1) {
+            if (strings[0].equals("player")) {
+                List l = new ArrayList<String>();
+                Bukkit.getOnlinePlayers().forEach(player -> {
+                    l.add(player.getName());
+                });
+                return l;
+            }
+        }
+        return null;
     }
 }

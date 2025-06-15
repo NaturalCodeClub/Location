@@ -18,9 +18,6 @@ public class ConfigManager {
     public static File configFile = new File(Location.getInstance().getDataFolder(), "config.yml");
     public static FileConfiguration config;
 
-    public static File langFile;
-    public static FileConfiguration lang;
-
     public static int CACHE_OUTDATED_RATE;
     public static int CHECK_INTERVAL_MINUTES;
     public static int QPS;
@@ -38,6 +35,7 @@ public class ConfigManager {
             conf.save(path);
         } catch (IOException e) {
             Location.getInstance().getLogger().log(Level.SEVERE, "Failed to save config, please check your file permission settings.");
+            Location.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
         }
     }
 
@@ -87,10 +85,33 @@ public class ConfigManager {
             conf.setComments("qps", List.of("配置插件查询IP信息的Api访问频次，单位为 次/秒 如果您不更改本项目代码中所访问的Api，请不要使其高于 15 ."));
         }
 
-        if(conf.get("retry-count-drop") == null) {
+        if (conf.get("retry-count-drop") == null) {
             conf.set("retry-count-drop", 5);
-            conf.setComments("retry-count-drop",List.of("配置当获取地址时API返回代码 202 时插件重试获取地址的次数，超出此次数，玩家的位置将直接显示为 “未知” ."));
+            conf.setComments("retry-count-drop", List.of("配置当获取地址时API返回代码 202 时插件重试获取地址的次数，超出此次数，玩家的位置将直接显示为 “未知” ."));
         }
+
+        //Some value replacement configuration
+        if (conf.get("replacement.country") == null) {
+            conf.set("replacement.country", "UNKNOWN");
+            conf.setComments("replacement.country", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+        }
+        if (conf.get("replacement.province") == null) {
+            conf.set("replacement.province", "UNKNOWN");
+            conf.setComments("replacement.province", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+        }
+        if (conf.get("replacement.isp") == null) {
+            conf.set("replacement.isp", "UNKNOWN");
+            conf.setComments("replacement.isp", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+        }
+        if (conf.get("replacement.district") == null) {
+            conf.set("replacement.district", "UNKNOWN");
+            conf.setComments("replacement.district", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+        }
+        if (conf.get("replacement.city") == null) {
+            conf.set("replacement.city", "UNKNOWN");
+            conf.setComments("replacement.city", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+        }
+
         try {
             conf.save(configFile);
         } catch (IOException e) {

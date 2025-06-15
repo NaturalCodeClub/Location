@@ -49,6 +49,11 @@ public class papiHook extends PlaceholderExpansion {
             if(LocationManager.isRequesting(onlinePlayer)) return "获取中";
             return LocationManager.getIsp(onlinePlayer);
         }
+
+        if(params.equalsIgnoreCase("District")) {
+            if(LocationManager.isRequesting(onlinePlayer)) return "获取中";
+
+        }
         return null; // Placeholder is unknown by the Expansion
     }
 

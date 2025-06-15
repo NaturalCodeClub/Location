@@ -14,5 +14,5 @@ commands:
       - "lc"
     usage: "/Location help 获取命令帮助." # 用法
     description: "显示对某玩家的地理定位信息和网络运营商信息" # 描述
-    permission: "minecraft.command.Location" # 需要的权限，通常不用
+    permission: "location.usage" # 需要的权限，通常不用
     permission-message: "你没有管理员权限！" # 无权限返回的消息，通常不用
