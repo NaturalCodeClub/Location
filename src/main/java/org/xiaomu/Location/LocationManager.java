@@ -51,7 +51,9 @@ public class LocationManager {
 //                Location.getInstance().getLogger().warning("定位可能不适合内网映射，请确定您的服务端可获取玩家真实 IP.");
 //                playerIP = "";
 //            }
-            if(CacheManager.requestIsCacheExist(playerIP)){
+            if (CacheManager.requestIsCacheExist(playerIP)) {
+
+
                 newLocations.put(playerName, CacheManager.getCacheApiData(playerIP));
                 locateState.put(playerName, true);
                 requestingPlayers.remove(player);
@@ -79,7 +81,7 @@ public class LocationManager {
                     requestingPlayers.remove(player);
                     retryMap.remove(player);
                 } else if (code.equals("202")) {
-                    //TODO finish it
+                    //TODO test is needed
                     Location.getInstance().getLogger().warning("QPS设置过高，无法定位，玩家 " + playerIP + " 的定位将于下一周期进行.");
 //                    int i = retryMap.get(player);
 //                    i++;
@@ -165,10 +167,8 @@ public class LocationManager {
 //            return "未知";
 //        }
 
-        if (newLocations.get(player.getName()).getCountry().equals("局域网") || newLocations.get(player.getName()).getCountry().equals("本地局域网") || newLocations.get(player.getName()).getCountry().equals("保留地址")) {
-            return "本地";
-        }
-        if (!locateState.get(player.getName())) {
+//        if (newLocations.get(player.getName()).getCountry().equals("局域网") || newLocations.get(player.getName()).getCountry().equals("本地局域网") || newLocations.get(player.getName()).getCountry().equals("保留地址")) {
+        if (newLocations.get(player.getName()).getCountry().isEmpty() || !locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getCountry();
@@ -182,20 +182,14 @@ public class LocationManager {
 //            return "未知";
 //        }
 
-        if (newLocations.get(player.getName()).getProvince().isEmpty()) {
-            return "未知";
-        }
-        if (!locateState.get(player.getName())) {
+        if (newLocations.get(player.getName()).getProvince().isEmpty() || locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getProvince();
     }
 
     public static String getCity(Player player) {
-        if (newLocations.get(player.getName()).getCity().isEmpty()) {
-            return "未知";
-        }
-        if (!locateState.get(player.getName())) {
+        if (newLocations.get(player.getName()).getCity().isEmpty() || !locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getCity();
@@ -207,20 +201,14 @@ public class LocationManager {
 //        } else {
 //            return "未知";
 //        }
-        if (newLocations.get(player.getName()).getIsp().isEmpty()) {
-            return "未知";
-        }
-        if (!locateState.get(player.getName())) {
+        if (newLocations.get(player.getName()).getIsp().isEmpty() || !locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getIsp();
     }
 
     public static String getDistrict(Player player) {
-        if (newLocations.get(player.getName()).getDistrict().isEmpty()) {
-            return "未知";
-        }
-        if (!locateState.get(player.getName())) {
+        if (newLocations.get(player.getName()).getDistrict().isEmpty() || !locateState.get(player.getName())) {
             return "未知";
         }
         return newLocations.get(player.getName()).getDistrict();
@@ -239,6 +227,7 @@ public class LocationManager {
     public static void removeAll() {
 //        Locations.clear();
         newLocations.clear();
+        CacheManager.removeAllCaches();
         locateState.clear();
     }
 
@@ -246,5 +235,218 @@ public class LocationManager {
         for (Player player : Bukkit.getOnlinePlayers()) {
             LocationManager.Locate(player);
         }
+    }
+
+    //Code Shit, need further optimization.
+    public static ApiData replaceValue(ApiData data) {
+        String newCountry = null;
+        String newProvince = null;
+        String newCity = null;
+        String newIsp = null;
+        String newDistrict = null;
+
+        for (String s : ConfigManager.replacementKey) {
+            //Country
+            if (data.getCountry().contains(s)) {
+                switch (ConfigManager.COUNTRY_REPLACEMENT) {
+                    case PROVINCE -> {
+                        if (data.getProvince().contains(s)) {
+                            newCountry = "未知";
+                            break;
+                        }
+                        newCountry = data.getProvince();
+                    }
+                    case CITY -> {
+                        if (data.getCity().contains(s)) {
+                            newCountry = "未知";
+                            break;
+                        }
+                        newCountry = data.getCity();
+                    }
+                    case ISP -> {
+                        if (data.getIsp().contains(s)) {
+                            newCountry = "未知";
+                            break;
+                        }
+                        newCountry = data.getIsp();
+                    }
+                    case DISTRICT -> {
+                        if (data.getDistrict().contains(s)) {
+                            newCountry = "未知";
+                            break;
+                        }
+                        newCountry = data.getDistrict();
+                    }
+                    default -> newCountry = "未知";
+                }
+            }
+            //Province
+            if (data.getProvince().contains(s)) {
+                switch (ConfigManager.PROVINCE_REPLACEMENT) {
+                    case COUNTRY -> {
+                        if (data.getCountry().contains(s)) {
+                            newProvince = "未知";
+                            break;
+                        }
+                        newProvince = data.getCountry();
+                    }
+                    case CITY -> {
+                        if (data.getCity().contains(s)) {
+                            newProvince = "未知";
+                            break;
+                        }
+                        newProvince = data.getCity();
+                    }
+                    case ISP -> {
+                        if (data.getIsp().contains(s)) {
+                            newProvince = "未知";
+                            break;
+                        }
+                        newProvince = data.getIsp();
+                    }
+                    case DISTRICT -> {
+                        if (data.getDistrict().contains(s)) {
+                            newProvince = "未知";
+                            break;
+                        }
+                        newProvince = data.getDistrict();
+                    }
+                    default -> newProvince = "未知";
+                }
+            }
+            //CITY
+            if (data.getCity().contains(s)) {
+                switch (ConfigManager.CITY_REPLACEMENT) {
+                    case COUNTRY -> {
+                        if (data.getCountry().contains(s)) {
+                            newCity = "未知";
+                            break;
+                        }
+                        newCity = data.getCountry();
+                    }
+                    case PROVINCE -> {
+                        if (data.getProvince().contains(s)) {
+                            newCity = "未知";
+                            break;
+                        }
+                        newCity = data.getProvince();
+                    }
+//                    case CITY -> {
+//                        if(data.getCity().contains(s)) {
+//                            newCity = "未知";
+//                            break;
+//                        }
+//                        newCity = data.getCity();
+//                    }
+                    case ISP -> {
+                        if (data.getIsp().contains(s)) {
+                            newCity = "未知";
+                            break;
+                        }
+                        newCity = data.getIsp();
+                    }
+                    case DISTRICT -> {
+                        if (data.getDistrict().contains(s)) {
+                            newCity = "未知";
+                            break;
+                        }
+                        newCity = data.getDistrict();
+                    }
+                    default -> newCity = "未知";
+                }
+            }
+            //ISP
+            if (data.getDistrict().contains(s)) {
+                switch (ConfigManager.ISP_REPLACEMENT) {
+                    case COUNTRY -> {
+                        if (data.getCountry().contains(s)) {
+                            newIsp = "未知";
+                            break;
+                        }
+                        newIsp = data.getCountry();
+                    }
+                    case PROVINCE -> {
+                        if (data.getProvince().contains(s)) {
+                            newIsp = "未知";
+                            break;
+                        }
+                        newIsp = data.getProvince();
+                    }
+                    case CITY -> {
+                        if (data.getCity().contains(s)) {
+                            newIsp = "未知";
+                            break;
+                        }
+                        newIsp = data.getCity();
+                    }
+//                    case ISP -> {
+//                        if(data.getIsp().contains(s)) {
+//                            newIsp = "未知";
+//                            break;
+//                        }
+//                        newIsp = data.getIsp();
+//                    }
+                    case DISTRICT -> {
+                        if (data.getDistrict().contains(s)) {
+                            newIsp = "未知";
+                            break;
+                        }
+                        newIsp = data.getDistrict();
+                    }
+                    default -> newIsp = "未知";
+                }
+            }
+            //DISTRICT
+            if (data.getDistrict().contains(s)) {
+                switch (ConfigManager.DISTRICT_REPLACEMENT) {
+                    case COUNTRY -> {
+                        if (data.getCountry().contains(s)) {
+                            newDistrict = "未知";
+                            break;
+                        }
+                        newDistrict = data.getCountry();
+                    }
+                    case PROVINCE -> {
+                        if (data.getProvince().contains(s)) {
+                            newDistrict = "未知";
+                            break;
+                        }
+                        newDistrict = data.getProvince();
+                    }
+                    case CITY -> {
+                        if (data.getCity().contains(s)) {
+                            newDistrict = "未知";
+                            break;
+                        }
+                        newDistrict = data.getCity();
+                    }
+                    case ISP -> {
+                        if (data.getIsp().contains(s)) {
+                            newDistrict = "未知";
+                            break;
+                        }
+                        newDistrict = data.getIsp();
+                    }
+//                    case DISTRICT -> {
+//                        if(data.getDistrict().contains(s)) {
+//                            newDistrict = "未知";
+//                            break;
+//                        }
+//                        newDistrict = data.getDistrict();
+//                    }
+                    default -> newDistrict = "未知";
+                }
+            }
+
+            if (newCountry != null && newProvince != null && newCity != null & newIsp != null && newDistrict != null) {
+                break;
+            }
+        }
+        if (newCountry == null) newCountry = data.getCountry();
+        if (newProvince == null) newProvince = data.getProvince();
+        if (newCity == null) newCity = data.getCity();
+        if (newDistrict == null) newDistrict = data.getDistrict();
+        if (newIsp == null) newIsp = data.getIsp();
+        return new ApiData(newCountry, newProvince, newCity, newIsp, newDistrict);
     }
 }

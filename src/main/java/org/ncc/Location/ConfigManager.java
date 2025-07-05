@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.ncc.Location.Utils.LocationType;
 import org.xiaomu.Location.Location;
 import org.xiaomu.Location.papiHook;
 
@@ -22,6 +23,16 @@ public class ConfigManager {
     public static int CHECK_INTERVAL_MINUTES;
     public static int QPS;
     public static int RETRY_COUNT_DROP;
+
+    public static LocationType COUNTRY_REPLACEMENT;
+    public static LocationType PROVINCE_REPLACEMENT;
+    public static LocationType ISP_REPLACEMENT;
+    public static LocationType DISTRICT_REPLACEMENT;
+    public static LocationType CITY_REPLACEMENT;
+
+    public static List<String> replacementKey;
+    private static final List<String> defaultReplacementKey = List.of("","本地局域网","局域网","保留地址");
+
 
     //TODO finish it
 
@@ -55,6 +66,14 @@ public class ConfigManager {
         CHECK_INTERVAL_MINUTES = conf.getInt("check-interval-minute", 10);
         QPS = conf.getInt("qps", 15);
         RETRY_COUNT_DROP = conf.getInt("retry-count-drop", 5);
+
+        COUNTRY_REPLACEMENT = LocationType.valueOf(conf.getString("replacement.country","UNKNOWN"));
+        PROVINCE_REPLACEMENT = LocationType.valueOf(conf.getString("replacement.province","UNKNOWN"));
+        ISP_REPLACEMENT = LocationType.valueOf(conf.getString("replacement.isp","UNKNOWN"));
+        DISTRICT_REPLACEMENT = LocationType.valueOf(conf.getString("replacement.district","UNKNOWN"));
+        CITY_REPLACEMENT = LocationType.valueOf(conf.getString("replacement.city","UNKNOWN"));
+
+        replacementKey = conf.getStringList("replacement.key");
     }
 
     public static void initConfig(FileConfiguration conf) {
@@ -93,23 +112,28 @@ public class ConfigManager {
         //Some value replacement configuration
         if (conf.get("replacement.country") == null) {
             conf.set("replacement.country", "UNKNOWN");
-            conf.setComments("replacement.country", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+            conf.setComments("replacement.country", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN","若替代的项也存在关键词那么会直接替换为UNKNOWN."));
         }
         if (conf.get("replacement.province") == null) {
             conf.set("replacement.province", "UNKNOWN");
-            conf.setComments("replacement.province", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+            conf.setComments("replacement.province", List.of("配置当获取的位置信息的province项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN","若替代的项也存在关键词那么会直接替换为UNKNOWN."));
         }
         if (conf.get("replacement.isp") == null) {
             conf.set("replacement.isp", "UNKNOWN");
-            conf.setComments("replacement.isp", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+            conf.setComments("replacement.isp", List.of("配置当获取的位置信息的isp项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN","若替代的项也存在关键词那么会直接替换为UNKNOWN."));
         }
         if (conf.get("replacement.district") == null) {
             conf.set("replacement.district", "UNKNOWN");
-            conf.setComments("replacement.district", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+            conf.setComments("replacement.district", List.of("配置当获取的位置信息的district项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN","若替代的项也存在关键词那么会直接替换为UNKNOWN."));
         }
         if (conf.get("replacement.city") == null) {
             conf.set("replacement.city", "UNKNOWN");
-            conf.setComments("replacement.city", List.of("配置当获取的位置信息的country项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN"));
+            conf.setComments("replacement.city", List.of("配置当获取的位置信息的city项出现异常时的替换项", "可供填写的配置项有COUNTRY, PROVINCE, CITY, ISP, DISTRICT, UNKNOWN","若替代的项也存在关键词那么会直接替换为UNKNOWN."));
+        }
+
+        if(conf.get("replacement.key") == null){
+            conf.set("replacement.key", defaultReplacementKey);
+            conf.setComments("replacement.key",List.of("配置检测是否替换的关键词"));
         }
 
         try {

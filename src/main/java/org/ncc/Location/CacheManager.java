@@ -33,5 +33,8 @@ public class CacheManager {
     public static void addCache(String IP, ApiData apiData) {
         cacheLocation.put(IP, apiData);
     }
+    public static void removeAllCaches(){
+        cacheLocation.clear();
+    }
 
 }
