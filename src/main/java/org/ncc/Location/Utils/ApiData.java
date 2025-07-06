@@ -19,7 +19,7 @@ public class ApiData {
         district = dataJson.getString("district");
     }
 
-    public ApiData(@NotNull String country_, @NotNull String city_, @NotNull String province_, @NotNull String isp_, @NotNull String district_) {
+    public ApiData(@NotNull String country_, @NotNull String province_, @NotNull String city_, @NotNull String isp_, @NotNull String district_) {
         country = country_;
         city = city_;
         province = province_;

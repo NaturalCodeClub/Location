@@ -12,7 +12,7 @@ public class CacheManager {
     private static final ConcurrentHashMap<String, ApiData> cacheLocation = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<String, Long> cacheTimeStamp = new ConcurrentHashMap<>();
 
-    public void initTaskScheduler() {
+    public static void initTaskScheduler() {
         Bukkit.getGlobalRegionScheduler().runAtFixedRate(Location.getInstance(), scheduledTask -> {
             for (String s : cacheTimeStamp.keySet()) {
                 if(System.currentTimeMillis() - cacheTimeStamp.get(s) >= TimeUnit.HOURS.toMillis(ConfigManager.CACHE_OUTDATED_RATE)) {

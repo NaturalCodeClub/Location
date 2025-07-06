@@ -7,10 +7,12 @@ import org.ncc.Location.CacheManager;
 import org.ncc.Location.ConfigManager;
 import org.ncc.Location.QueueManager;
 import org.ncc.Location.Utils.ApiData;
+import org.ncc.Location.Utils.LocationType;
 import org.xiaomu.Location.utils.getRequest;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -53,8 +55,7 @@ public class LocationManager {
 //            }
             if (CacheManager.requestIsCacheExist(playerIP)) {
 
-
-                newLocations.put(playerName, CacheManager.getCacheApiData(playerIP));
+                newLocations.put(playerName, replaceValue(CacheManager.getCacheApiData(playerIP)));
                 locateState.put(playerName, true);
                 requestingPlayers.remove(player);
                 retryMap.remove(player);
@@ -76,8 +77,9 @@ public class LocationManager {
 
                     Location.getInstance().getLogger().info("对玩家 " + playerName + "(IP: " + dataJson.getString("ip") + ") 的定位成功.");
 //                            Locations.put(playerName, dataJson);
-                    newLocations.put(playerName, new ApiData(dataJson));
+                    newLocations.put(playerName, replaceValue(new ApiData(dataJson)));
                     locateState.put(playerName, true);
+                    CacheManager.addCache(playerIP,new ApiData(dataJson));
                     requestingPlayers.remove(player);
                     retryMap.remove(player);
                 } else if (code.equals("202")) {
@@ -239,214 +241,269 @@ public class LocationManager {
 
     //Code Shit, need further optimization.
     public static ApiData replaceValue(ApiData data) {
-        String newCountry = null;
-        String newProvince = null;
-        String newCity = null;
-        String newIsp = null;
-        String newDistrict = null;
+        String newCountry;
+        String newProvince;
+        String newCity;
+        String newIsp;
+        String newDistrict;
 
-        for (String s : ConfigManager.replacementKey) {
-            //Country
-            if (data.getCountry().contains(s)) {
-                switch (ConfigManager.COUNTRY_REPLACEMENT) {
-                    case PROVINCE -> {
-                        if (data.getProvince().contains(s)) {
-                            newCountry = "未知";
-                            break;
-                        }
-                        newCountry = data.getProvince();
-                    }
-                    case CITY -> {
-                        if (data.getCity().contains(s)) {
-                            newCountry = "未知";
-                            break;
-                        }
-                        newCountry = data.getCity();
-                    }
-                    case ISP -> {
-                        if (data.getIsp().contains(s)) {
-                            newCountry = "未知";
-                            break;
-                        }
-                        newCountry = data.getIsp();
-                    }
-                    case DISTRICT -> {
-                        if (data.getDistrict().contains(s)) {
-                            newCountry = "未知";
-                            break;
-                        }
-                        newCountry = data.getDistrict();
-                    }
-                    default -> newCountry = "未知";
-                }
-            }
-            //Province
-            if (data.getProvince().contains(s)) {
-                switch (ConfigManager.PROVINCE_REPLACEMENT) {
-                    case COUNTRY -> {
-                        if (data.getCountry().contains(s)) {
-                            newProvince = "未知";
-                            break;
-                        }
-                        newProvince = data.getCountry();
-                    }
-                    case CITY -> {
-                        if (data.getCity().contains(s)) {
-                            newProvince = "未知";
-                            break;
-                        }
-                        newProvince = data.getCity();
-                    }
-                    case ISP -> {
-                        if (data.getIsp().contains(s)) {
-                            newProvince = "未知";
-                            break;
-                        }
-                        newProvince = data.getIsp();
-                    }
-                    case DISTRICT -> {
-                        if (data.getDistrict().contains(s)) {
-                            newProvince = "未知";
-                            break;
-                        }
-                        newProvince = data.getDistrict();
-                    }
-                    default -> newProvince = "未知";
-                }
-            }
-            //CITY
-            if (data.getCity().contains(s)) {
-                switch (ConfigManager.CITY_REPLACEMENT) {
-                    case COUNTRY -> {
-                        if (data.getCountry().contains(s)) {
-                            newCity = "未知";
-                            break;
-                        }
-                        newCity = data.getCountry();
-                    }
-                    case PROVINCE -> {
-                        if (data.getProvince().contains(s)) {
-                            newCity = "未知";
-                            break;
-                        }
-                        newCity = data.getProvince();
-                    }
+        newCountry = performReplace(data.getCountry(), ConfigManager.replacementKey, data, ConfigManager.COUNTRY_REPLACEMENT);
+        newProvince = performReplace(data.getProvince(),ConfigManager.replacementKey, data, ConfigManager.PROVINCE_REPLACEMENT);
+        newCity = performReplace(data.getCity(), ConfigManager.replacementKey, data, ConfigManager.CITY_REPLACEMENT);
+        newIsp = performReplace(data.getIsp(), ConfigManager.replacementKey, data, ConfigManager.ISP_REPLACEMENT);
+        newDistrict = performReplace(data.getDistrict(), ConfigManager.replacementKey, data, ConfigManager.DISTRICT_REPLACEMENT);
+
+        return new ApiData(newCountry, newProvince, newCity, newIsp, newDistrict);
+//
+//        for (String s : ConfigManager.replacementKey) {
+//            //Country
+//            if (data.getCountry().contains(s)) {
+//                switch (ConfigManager.COUNTRY_REPLACEMENT) {
+//                    case PROVINCE -> {
+//                        if (data.getProvince().contains(s)) {
+//                            newCountry = "未知";
+//                            break;
+//                        }
+//                        newCountry = data.getProvince();
+//                    }
 //                    case CITY -> {
-//                        if(data.getCity().contains(s)) {
+//                        if (data.getCity().contains(s)) {
+//                            newCountry = "未知";
+//                            break;
+//                        }
+//                        newCountry = data.getCity();
+//                    }
+//                    case ISP -> {
+//                        if (data.getIsp().contains(s)) {
+//                            newCountry = "未知";
+//                            break;
+//                        }
+//                        newCountry = data.getIsp();
+//                    }
+//                    case DISTRICT -> {
+//                        if (data.getDistrict().contains(s)) {
+//                            newCountry = "未知";
+//                            break;
+//                        }
+//                        newCountry = data.getDistrict();
+//                    }
+//                    default -> newCountry = "未知";
+//                }
+//            }
+//            //Province
+//            if (data.getProvince().contains(s)) {
+//                switch (ConfigManager.PROVINCE_REPLACEMENT) {
+//                    case COUNTRY -> {
+//                        if (data.getCountry().contains(s)) {
+//                            newProvince = "未知";
+//                            break;
+//                        }
+//                        newProvince = data.getCountry();
+//                    }
+//                    case CITY -> {
+//                        if (data.getCity().contains(s)) {
+//                            newProvince = "未知";
+//                            break;
+//                        }
+//                        newProvince = data.getCity();
+//                    }
+//                    case ISP -> {
+//                        if (data.getIsp().contains(s)) {
+//                            newProvince = "未知";
+//                            break;
+//                        }
+//                        newProvince = data.getIsp();
+//                    }
+//                    case DISTRICT -> {
+//                        if (data.getDistrict().contains(s)) {
+//                            newProvince = "未知";
+//                            break;
+//                        }
+//                        newProvince = data.getDistrict();
+//                    }
+//                    default -> newProvince = "未知";
+//                }
+//            }
+//            //CITY
+//            if (data.getCity().contains(s)) {
+//                switch (ConfigManager.CITY_REPLACEMENT) {
+//                    case COUNTRY -> {
+//                        if (data.getCountry().contains(s)) {
 //                            newCity = "未知";
 //                            break;
 //                        }
-//                        newCity = data.getCity();
+//                        newCity = data.getCountry();
 //                    }
-                    case ISP -> {
-                        if (data.getIsp().contains(s)) {
-                            newCity = "未知";
-                            break;
-                        }
-                        newCity = data.getIsp();
-                    }
-                    case DISTRICT -> {
-                        if (data.getDistrict().contains(s)) {
-                            newCity = "未知";
-                            break;
-                        }
-                        newCity = data.getDistrict();
-                    }
-                    default -> newCity = "未知";
-                }
-            }
-            //ISP
-            if (data.getDistrict().contains(s)) {
-                switch (ConfigManager.ISP_REPLACEMENT) {
-                    case COUNTRY -> {
-                        if (data.getCountry().contains(s)) {
-                            newIsp = "未知";
-                            break;
-                        }
-                        newIsp = data.getCountry();
-                    }
-                    case PROVINCE -> {
-                        if (data.getProvince().contains(s)) {
-                            newIsp = "未知";
-                            break;
-                        }
-                        newIsp = data.getProvince();
-                    }
-                    case CITY -> {
-                        if (data.getCity().contains(s)) {
-                            newIsp = "未知";
-                            break;
-                        }
-                        newIsp = data.getCity();
-                    }
+//                    case PROVINCE -> {
+//                        if (data.getProvince().contains(s)) {
+//                            newCity = "未知";
+//                            break;
+//                        }
+//                        newCity = data.getProvince();
+//                    }
+////                    case CITY -> {
+////                        if(data.getCity().contains(s)) {
+////                            newCity = "未知";
+////                            break;
+////                        }
+////                        newCity = data.getCity();
+////                    }
 //                    case ISP -> {
-//                        if(data.getIsp().contains(s)) {
+//                        if (data.getIsp().contains(s)) {
+//                            newCity = "未知";
+//                            break;
+//                        }
+//                        newCity = data.getIsp();
+//                    }
+//                    case DISTRICT -> {
+//                        if (data.getDistrict().contains(s)) {
+//                            newCity = "未知";
+//                            break;
+//                        }
+//                        newCity = data.getDistrict();
+//                    }
+//                    default -> newCity = "未知";
+//                }
+//            }
+//            //ISP
+//            if (data.getDistrict().contains(s)) {
+//                switch (ConfigManager.ISP_REPLACEMENT) {
+//                    case COUNTRY -> {
+//                        if (data.getCountry().contains(s)) {
 //                            newIsp = "未知";
 //                            break;
 //                        }
-//                        newIsp = data.getIsp();
+//                        newIsp = data.getCountry();
 //                    }
-                    case DISTRICT -> {
-                        if (data.getDistrict().contains(s)) {
-                            newIsp = "未知";
-                            break;
-                        }
-                        newIsp = data.getDistrict();
-                    }
-                    default -> newIsp = "未知";
-                }
-            }
-            //DISTRICT
-            if (data.getDistrict().contains(s)) {
-                switch (ConfigManager.DISTRICT_REPLACEMENT) {
-                    case COUNTRY -> {
-                        if (data.getCountry().contains(s)) {
-                            newDistrict = "未知";
-                            break;
-                        }
-                        newDistrict = data.getCountry();
-                    }
-                    case PROVINCE -> {
-                        if (data.getProvince().contains(s)) {
-                            newDistrict = "未知";
-                            break;
-                        }
-                        newDistrict = data.getProvince();
-                    }
-                    case CITY -> {
-                        if (data.getCity().contains(s)) {
-                            newDistrict = "未知";
-                            break;
-                        }
-                        newDistrict = data.getCity();
-                    }
-                    case ISP -> {
-                        if (data.getIsp().contains(s)) {
-                            newDistrict = "未知";
-                            break;
-                        }
-                        newDistrict = data.getIsp();
-                    }
+//                    case PROVINCE -> {
+//                        if (data.getProvince().contains(s)) {
+//                            newIsp = "未知";
+//                            break;
+//                        }
+//                        newIsp = data.getProvince();
+//                    }
+//                    case CITY -> {
+//                        if (data.getCity().contains(s)) {
+//                            newIsp = "未知";
+//                            break;
+//                        }
+//                        newIsp = data.getCity();
+//                    }
+////                    case ISP -> {
+////                        if(data.getIsp().contains(s)) {
+////                            newIsp = "未知";
+////                            break;
+////                        }
+////                        newIsp = data.getIsp();
+////                    }
 //                    case DISTRICT -> {
-//                        if(data.getDistrict().contains(s)) {
+//                        if (data.getDistrict().contains(s)) {
+//                            newIsp = "未知";
+//                            break;
+//                        }
+//                        newIsp = data.getDistrict();
+//                    }
+//                    default -> newIsp = "未知";
+//                }
+//            }
+//            //DISTRICT
+//            if (data.getDistrict().contains(s)) {
+//                switch (ConfigManager.DISTRICT_REPLACEMENT) {
+//                    case COUNTRY -> {
+//                        if (data.getCountry().contains(s)) {
 //                            newDistrict = "未知";
 //                            break;
 //                        }
-//                        newDistrict = data.getDistrict();
+//                        newDistrict = data.getCountry();
 //                    }
-                    default -> newDistrict = "未知";
-                }
-            }
+//                    case PROVINCE -> {
+//                        if (data.getProvince().contains(s)) {
+//                            newDistrict = "未知";
+//                            break;
+//                        }
+//                        newDistrict = data.getProvince();
+//                    }
+//                    case CITY -> {
+//                        if (data.getCity().contains(s)) {
+//                            newDistrict = "未知";
+//                            break;
+//                        }
+//                        newDistrict = data.getCity();
+//                    }
+//                    case ISP -> {
+//                        if (data.getIsp().contains(s)) {
+//                            newDistrict = "未知";
+//                            break;
+//                        }
+//                        newDistrict = data.getIsp();
+//                    }
+////                    case DISTRICT -> {
+////                        if(data.getDistrict().contains(s)) {
+////                            newDistrict = "未知";
+////                            break;
+////                        }
+////                        newDistrict = data.getDistrict();
+////                    }
+//                    default -> newDistrict = "未知";
+//                }
+//            }
+//
+//            if (newCountry != null && newProvince != null && newCity != null & newIsp != null && newDistrict != null) {
+//                break;
+//            }
+//        }
+//        if (newCountry == null) newCountry = data.getCountry();
+//        if (newProvince == null) newProvince = data.getProvince();
+//        if (newCity == null) newCity = data.getCity();
+//        if (newDistrict == null) newDistrict = data.getDistrict();
+//        if (newIsp == null) newIsp = data.getIsp();
+//        return new ApiData(newCountry, newProvince, newCity, newIsp, newDistrict);
+    }
 
-            if (newCountry != null && newProvince != null && newCity != null & newIsp != null && newDistrict != null) {
-                break;
+    private static String performReplace(String str, List<String> keyList, ApiData data, LocationType strategy) {
+        for (String key : keyList) {
+            if (str.contains(key)) {
+                switch (strategy) {
+                    case COUNTRY -> {
+                        if (data.getCountry().contains(key)) {
+                            str = "未知";
+                            break;
+                        }
+                        str = data.getCountry();
+                    }
+                    case PROVINCE -> {
+                        if (data.getProvince().contains(key)) {
+                            str = "未知";
+                            break;
+                        }
+                        str = data.getProvince();
+                    }
+                    case CITY -> {
+                        if (data.getCity().contains(key)) {
+                            str = "未知";
+                            break;
+                        }
+                        str = data.getCity();
+                    }
+                    case ISP -> {
+                        if (data.getIsp().contains(key)) {
+                            str = "未知";
+                            break;
+                        }
+                        str = data.getIsp();
+                    }
+                    case DISTRICT -> {
+                        if (data.getDistrict().contains(key)) {
+                            str = "未知";
+                            break;
+                        }
+                        str = data.getDistrict();
+                    }
+                    default -> str = "未知";
+                }
+                return str;
             }
         }
-        if (newCountry == null) newCountry = data.getCountry();
-        if (newProvince == null) newProvince = data.getProvince();
-        if (newCity == null) newCity = data.getCity();
-        if (newDistrict == null) newDistrict = data.getDistrict();
-        if (newIsp == null) newIsp = data.getIsp();
-        return new ApiData(newCountry, newProvince, newCity, newIsp, newDistrict);
+        return str;
     }
 }

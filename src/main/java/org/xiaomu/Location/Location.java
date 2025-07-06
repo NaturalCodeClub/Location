@@ -1,13 +1,14 @@
 package org.xiaomu.Location;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.ncc.Location.CacheManager;
 import org.ncc.Location.ConfigManager;
 
 import static org.ncc.Location.QueueManager.queueManager;
 
 public class Location extends JavaPlugin {
     private static Location instance;
-    public static final String author = "xiaomu18";
+    public static final String author = "xiaomu18,NatJerry";
     public static final String version = "1.0.4";
 //    public static final QueueManager queueManager = new QueueManager();
 
@@ -32,7 +33,8 @@ public class Location extends JavaPlugin {
         }
 
         Bukkit.getPluginManager().registerEvents(new EventManager(),this);
-
+        CacheManager.initTaskScheduler();
+        getLogger().info("TaskScheduler loaded!");
         getLogger().info("插件加载完毕! 作者 " + author + " | 版本 " + version);
 
         if (!Bukkit.getOnlinePlayers().isEmpty()) {
