@@ -31,7 +31,7 @@ public class ConfigManager {
     public static LocationType CITY_REPLACEMENT;
 
     public static List<String> replacementKey;
-    private static final List<String> defaultReplacementKey = List.of("","本地局域网","局域网","保留地址");
+    private static final List<String> defaultReplacementKey = List.of("本地局域网","局域网","保留地址");
 
 
     //TODO finish it

@@ -3,6 +3,7 @@ package org.xiaomu.Location;
 import com.alibaba.fastjson.JSONObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.ncc.Location.CacheManager;
 import org.ncc.Location.ConfigManager;
 import org.ncc.Location.QueueManager;
@@ -75,11 +76,14 @@ public class LocationManager {
                     stringData = objectJson.getString("data");
                     JSONObject dataJson = JSONObject.parseObject(stringData);
 
+                    // Debug
+//                    System.out.println(stringData);
+
                     Location.getInstance().getLogger().info("对玩家 " + playerName + "(IP: " + dataJson.getString("ip") + ") 的定位成功.");
 //                            Locations.put(playerName, dataJson);
                     newLocations.put(playerName, replaceValue(new ApiData(dataJson)));
                     locateState.put(playerName, true);
-                    CacheManager.addCache(playerIP,new ApiData(dataJson));
+                    CacheManager.addCache(playerIP, new ApiData(dataJson));
                     requestingPlayers.remove(player);
                     retryMap.remove(player);
                 } else if (code.equals("202")) {
@@ -170,9 +174,9 @@ public class LocationManager {
 //        }
 
 //        if (newLocations.get(player.getName()).getCountry().equals("局域网") || newLocations.get(player.getName()).getCountry().equals("本地局域网") || newLocations.get(player.getName()).getCountry().equals("保留地址")) {
-        if (newLocations.get(player.getName()).getCountry().isEmpty() || !locateState.get(player.getName())) {
-            return "未知";
-        }
+//        if (newLocations.get(player.getName()).getCountry().isEmpty() || !locateState.get(player.getName())) {
+//            return "未知";
+//        }
         return newLocations.get(player.getName()).getCountry();
 
     }
@@ -183,17 +187,17 @@ public class LocationManager {
 //        } else {
 //            return "未知";
 //        }
-
-        if (newLocations.get(player.getName()).getProvince().isEmpty() || locateState.get(player.getName())) {
-            return "未知";
-        }
+//
+//        if (newLocations.get(player.getName()).getProvince().isEmpty() || locateState.get(player.getName())) {
+//            return "未知";
+//        }
         return newLocations.get(player.getName()).getProvince();
     }
 
     public static String getCity(Player player) {
-        if (newLocations.get(player.getName()).getCity().isEmpty() || !locateState.get(player.getName())) {
-            return "未知";
-        }
+//        if (newLocations.get(player.getName()).getCity().isEmpty() || !locateState.get(player.getName())) {
+//            return "未知";
+//        }
         return newLocations.get(player.getName()).getCity();
     }
 
@@ -203,16 +207,16 @@ public class LocationManager {
 //        } else {
 //            return "未知";
 //        }
-        if (newLocations.get(player.getName()).getIsp().isEmpty() || !locateState.get(player.getName())) {
-            return "未知";
-        }
+//        if (newLocations.get(player.getName()).getIsp().isEmpty() || !locateState.get(player.getName())) {
+//            return "未知";
+//        }
         return newLocations.get(player.getName()).getIsp();
     }
 
     public static String getDistrict(Player player) {
-        if (newLocations.get(player.getName()).getDistrict().isEmpty() || !locateState.get(player.getName())) {
-            return "未知";
-        }
+//        if (newLocations.get(player.getName()).getDistrict().isEmpty() || !locateState.get(player.getName())) {
+//            return "未知";
+//        }
         return newLocations.get(player.getName()).getDistrict();
     }
 
@@ -247,11 +251,17 @@ public class LocationManager {
         String newIsp;
         String newDistrict;
 
+//        debug
+//        System.out.println(data.getCountry() + " " + data.getProvince() + " " + data.getCity() + " " + data.getIsp() + " " + data.getDistrict());
+
         newCountry = performReplace(data.getCountry(), ConfigManager.replacementKey, data, ConfigManager.COUNTRY_REPLACEMENT);
-        newProvince = performReplace(data.getProvince(),ConfigManager.replacementKey, data, ConfigManager.PROVINCE_REPLACEMENT);
+        newProvince = performReplace(data.getProvince(), ConfigManager.replacementKey, data, ConfigManager.PROVINCE_REPLACEMENT);
         newCity = performReplace(data.getCity(), ConfigManager.replacementKey, data, ConfigManager.CITY_REPLACEMENT);
         newIsp = performReplace(data.getIsp(), ConfigManager.replacementKey, data, ConfigManager.ISP_REPLACEMENT);
         newDistrict = performReplace(data.getDistrict(), ConfigManager.replacementKey, data, ConfigManager.DISTRICT_REPLACEMENT);
+
+        // debug
+//        System.out.println(newCountry + " " + newProvince + " " + newCity + " " + newIsp + " " + newDistrict);
 
         return new ApiData(newCountry, newProvince, newCity, newIsp, newDistrict);
 //
@@ -460,9 +470,11 @@ public class LocationManager {
 //        return new ApiData(newCountry, newProvince, newCity, newIsp, newDistrict);
     }
 
-    private static String performReplace(String str, List<String> keyList, ApiData data, LocationType strategy) {
+    private static String performReplace(@NotNull String str, List<String> keyList, ApiData data, LocationType strategy) {
         for (String key : keyList) {
-            if (str.contains(key)) {
+            //TODO debug
+            System.out.println(str + " " + str.contains(key));
+            if (str.contains(key) || str.isBlank()) {
                 switch (strategy) {
                     case COUNTRY -> {
                         if (data.getCountry().contains(key)) {

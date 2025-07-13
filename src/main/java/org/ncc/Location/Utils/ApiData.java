@@ -9,14 +9,14 @@ public class ApiData {
     String province;
     String city;
     String isp;
-    String district;
+    String districts;
 
     public ApiData(JSONObject dataJson) {
         country = dataJson.getString("country");
         city = dataJson.getString("city");
         province = dataJson.getString("province");
         isp = dataJson.getString("isp");
-        district = dataJson.getString("district");
+        districts = dataJson.getString("districts");
     }
 
     public ApiData(@NotNull String country_, @NotNull String province_, @NotNull String city_, @NotNull String isp_, @NotNull String district_) {
@@ -24,7 +24,7 @@ public class ApiData {
         city = city_;
         province = province_;
         isp = isp_;
-        district = district_;
+        districts = district_;
     }
 
     public String getCountry() {
@@ -44,7 +44,7 @@ public class ApiData {
     }
 
     public String getDistrict() {
-        return district;
+        return districts;
     }
 
 }

@@ -51,10 +51,10 @@ public class Commander implements TabExecutor {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        if (strings.length == 0) {
+        if (strings.length == 1) {
             return List.of("help", "flush", "player");
         }
-        if (strings.length == 1) {
+        if (strings.length == 2) {
             if (strings[0].equals("player")) {
                 List l = new ArrayList<String>();
                 Bukkit.getOnlinePlayers().forEach(player -> {
