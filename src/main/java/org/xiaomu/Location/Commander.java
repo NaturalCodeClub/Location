@@ -7,6 +7,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.ncc.Location.ConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,9 @@ public class Commander implements TabExecutor {
             commandSender.sendMessage("[Location] 正在异步刷新所有玩家的地理定位信息.");
             return true;
         }
+        if(args[0].equalsIgnoreCase("reload")){
+            ConfigManager.reloadConfig(commandSender);
+        }
 
         commandSender.sendMessage("[Location] 未知的命令.");
         return true;
@@ -52,7 +56,7 @@ public class Commander implements TabExecutor {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (strings.length == 1) {
-            return List.of("help", "flush", "player");
+            return List.of("help", "flush", "player","reload");
         }
         if (strings.length == 2) {
             if (strings[0].equals("player")) {
