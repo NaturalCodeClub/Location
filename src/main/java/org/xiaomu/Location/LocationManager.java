@@ -472,8 +472,8 @@ public class LocationManager {
 
     private static String performReplace(@NotNull String str, List<String> keyList, ApiData data, LocationType strategy) {
         for (String key : keyList) {
-            //TODO debug
-            System.out.println(str + " " + str.contains(key));
+            //debug
+//            System.out.println(str + " " + str.contains(key));
             if (str.contains(key) || str.isBlank()) {
                 switch (strategy) {
                     case COUNTRY -> {
