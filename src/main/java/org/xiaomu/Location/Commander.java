@@ -47,6 +47,7 @@ public class Commander implements TabExecutor {
         }
         if(args[0].equalsIgnoreCase("reload")){
             ConfigManager.reloadConfig(commandSender);
+            return true;
         }
 
         commandSender.sendMessage("[Location] 未知的命令.");
